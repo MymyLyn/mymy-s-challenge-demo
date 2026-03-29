@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>角色挑战</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #0f1419;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        /* 手机容器 */
+        .phone-container {
+            width: 375px;
+            height: 812px;
+            background: linear-gradient(180deg, #1a0a0a 0%, #0d0505 100%);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 状态栏 */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .signal-icon {
+            display: flex;
+            gap: 2px;
+            align-items: flex-end;
+        }
+        
+        .signal-bar {
+            width: 3px;
+            background: #fff;
+            border-radius: 1px;
+        }
+        
+        .signal-bar:nth-child(1) { height: 4px; }
+        .signal-bar:nth-child(2) { height: 6px; }
+        .signal-bar:nth-child(3) { height: 8px; }
+        .signal-bar:nth-child(4) { height: 10px; }
+        
+        .battery-icon {
+            width: 22px;
+            height: 11px;
+            border: 1px solid #fff;
+            border-radius: 2px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 1px;
+        }
+        
+        .battery-icon::after {
+            content: '';
+            position: absolute;
+            right: -3px;
+            width: 2px;
+            height: 5px;
+            background: #fff;
+            border-radius: 0 1px 1px 0;
+        }
+        
+        .battery-level {
+            width: 70%;
+            height: 100%;
+            background: #fff;
+            border-radius: 1px;
+        }
+        
+        /* 头部导航 */
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 20px;
+        }
+        
+        .header-title {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .header-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .header-status {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+        }
+        
+        /* 挑战进度条区域 */
+        .challenge-progress {
+            margin: 8px 16px;
+            background: linear-gradient(135deg, rgba(139, 69, 69, 0.6) 0%, rgba(80, 30, 30, 0.6) 100%);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid rgba(255, 100, 100, 0.3);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .challenge-progress:active {
+            transform: scale(0.98);
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .progress-title {
+            font-size: 14px;
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        .progress-round {
+            font-size: 12px;
+            color: #fbbf24;
+            background: rgba(251, 191, 36, 0.2);
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+        
+        .progress-bar-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+        
+        .progress-value {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+        
+        .progress-target {
+            color: #94a3b8;
+        }
+        
+        /* 角色信息卡片 */
+        .role-info-card {
+            margin: 8px 16px 16px;
+            background: linear-gradient(135deg, rgba(180, 50, 50, 0.4) 0%, rgba(100, 30, 30, 0.4) 100%);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid rgba(255, 100, 100, 0.2);
+        }
+        
+        .role-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .role-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: 2px solid rgba(255, 200, 200, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .role-meta {
+            flex: 1;
+        }
+        
+        .role-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        
+        .role-type {
+            font-size: 12px;
+            color: #fbbf24;
+            background: rgba(251, 191, 36, 0.15);
+            padding: 2px 8px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        
+        .role-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 12px 0;
+        }
+        
+        .role-section {
+            margin-bottom: 12px;
+        }
+        
+        .role-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .section-label {
+            font-size: 12px;
+            color: #fbbf24;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        
+        .section-content {
+            font-size: 13px;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+        
+        /* 开场白 */
+        .opening-message {
+            margin: 0 16px 16px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 12px 16px;
+            border-left: 3px solid #fbbf24;
+        }
+        
+        .opening-label {
+            font-size: 12px;
+            color: #fbbf24;
+            margin-bottom: 6px;
+        }
+        
+        .opening-text {
+            font-size: 13px;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+        
+        /* 固定顶部区域 */
+        .top-section {
+            flex-shrink: 0;
+        }
+        
+        /* 主内容区域 - 可滚动 */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+        }
+        
+        /* 聊天区域 */
+        .chat-area {
+            padding: 0 16px 16px;
+            min-height: 100%;
+        }
+        
+        .chat-message {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .chat-content {
+            flex: 1;
+        }
+        
+        .chat-bubble {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 12px 16px;
+            color: #fff;
+            font-size: 14px;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+        
+        .chat-time {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        
+        .user-message {
+            flex-direction: row-reverse;
+        }
+        
+        .user-message .chat-bubble {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        
+        /* 数值变化消息 */
+        .value-change-msg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 12px 0;
+            font-size: 12px;
+        }
+        
+        .value-change-box {
+            background: rgba(251, 191, 36, 0.15);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 12px;
+            padding: 6px 12px;
+            color: #fbbf24;
+        }
+        
+        .value-positive {
+            color: #4ade80;
+            background: rgba(74, 222, 128, 0.15);
+            border-color: rgba(74, 222, 128, 0.3);
+        }
+        
+        .value-negative {
+            color: #f87171;
+            background: rgba(248, 113, 113, 0.15);
+            border-color: rgba(248, 113, 113, 0.3);
+        }
+        
+        .round-remain-box {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 6px 12px;
+            color: #60a5fa;
+        }
+        
+        /* 系统消息 */
+        .system-message {
+            text-align: center;
+            margin: 16px 0;
+        }
+        
+        .system-text {
+            display: inline-block;
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        
+        /* 挑战结果消息 */
+        .challenge-result {
+            margin: 20px 16px;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+        }
+        
+        .challenge-result.success {
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.2) 0%, rgba(34, 197, 94, 0.2) 100%);
+            border: 1px solid rgba(74, 222, 128, 0.4);
+        }
+        
+        .challenge-result.fail {
+            background: linear-gradient(135deg, rgba(248, 113, 113, 0.2) 0%, rgba(239, 68, 68, 0.2) 100%);
+            border: 1px solid rgba(248, 113, 113, 0.4);
+        }
+        
+        .result-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .result-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .challenge-result.success .result-title {
+            color: #4ade80;
+        }
+        
+        .challenge-result.fail .result-title {
+            color: #f87171;
+        }
+        
+        .result-desc {
+            font-size: 13px;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        
+        .retry-btn {
+            background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+            color: #000;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .retry-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* 底部输入栏 */
+        .bottom-bar {
+            flex-shrink: 0;
+            background: rgba(15, 20, 25, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 10px 16px 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .input-box {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #fff;
+            border: none;
+            outline: none;
+        }
+        
+        .input-box::placeholder {
+            color: #64748b;
+        }
+        
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #000;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .send-btn:disabled {
+            background: rgba(255,255,255,0.1);
+            color: #64748b;
+            cursor: not-allowed;
+        }
+        
+        /* 弹窗遮罩 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* 角色说明弹窗 */
+        .role-modal {
+            position: fixed;
+            left: 50%;
+            bottom: 0;
+            width: 375px;
+            max-width: 100%;
+            transform: translateX(-50%) translateY(100%);
+            background: linear-gradient(180deg, #2d1f1f 0%, #1a1212 100%);
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            transition: transform 0.3s ease;
+            z-index: 101;
+            max-height: 70%;
+            overflow-y: auto;
+        }
+        
+        .role-modal.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #94a3b8;
+            cursor: pointer;
+        }
+        
+        .modal-section {
+            margin-bottom: 20px;
+        }
+        
+        .modal-section-title {
+            font-size: 14px;
+            color: #fbbf24;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .modal-section-content {
+            font-size: 14px;
+            color: #e2e8f0;
+            line-height: 1.8;
+        }
+        
+        /* 挑战失败弹窗 */
+        .fail-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: linear-gradient(135deg, #2d1f1f 0%, #1a1212 100%);
+            border-radius: 24px;
+            padding: 32px 24px;
+            width: 280px;
+            max-width: 90%;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 102;
+            border: 1px solid rgba(248, 113, 113, 0.3);
+        }
+        
+        .fail-modal.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .fail-icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+        }
+        
+        .fail-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f87171;
+            margin-bottom: 12px;
+        }
+        
+        .fail-desc {
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        
+        .fail-btn {
+            background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+            color: #000;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        /* 手机端自适应 */
+        @media screen and (max-width: 414px) {
+            .phone-container {
+                width: 100%;
+                height: 100vh;
+            }
+            
+            .role-modal {
+                width: 100%;
+                left: 0;
+                transform: translateY(100%);
+            }
+            
+            .role-modal.show {
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container" id="phoneContainer">
+        <!-- 固定顶部区域 -->
+        <div class="top-section">
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <div class="status-left">
+                    <span>9:41</span>
+                </div>
+                <div class="status-right">
+                    <div class="signal-icon">
+                        <div class="signal-bar"></div>
+                        <div class="signal-bar"></div>
+                        <div class="signal-bar"></div>
+                        <div class="signal-bar"></div>
+                    </div>
+                    <span>5G</span>
+                    <div class="battery-icon">
+                        <div class="battery-level"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 头部导航 -->
+            <div class="chat-header">
+                <div class="header-left">
+                    <div class="back-btn">‹</div>
+                    <div class="header-title">
+                        <div class="header-name">傲娇生气女友</div>
+                        <div class="header-status">在线</div>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="header-icon">📞</div>
+                    <div class="header-icon">☰</div>
+                </div>
+            </div>
+            
+            <!-- 挑战进度条 -->
+            <div class="challenge-progress" id="progressBar">
+                <div class="progress-header">
+                    <div class="progress-title">❤️ 好感值挑战</div>
+                    <div class="progress-round">剩余 <span id="roundNum">5</span> 轮</div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBarInner" style="width: 30%;"></div>
+                </div>
+                <div class="progress-info">
+                    <span class="progress-value">当前: <span id="currentValue">30</span></span>
+                    <span class="progress-target">目标: <span id="targetValue">100</span></span>
+                </div>
+            </div>
+            
+            <!-- 角色信息卡片 -->
+            <div class="role-info-card">
+                <div class="role-header">
+                    <div class="role-avatar">👩</div>
+                    <div class="role-meta">
+                        <div class="role-name">傲娇生气女友</div>
+                        <div class="role-type">好感值挑战</div>
+                    </div>
+                </div>
+                <div class="role-divider"></div>
+                <div class="role-section">
+                    <div class="section-label">📋 角色说明</div>
+                    <div class="section-content">她是一个傲娇的女朋友，现在正处于生气的状态。你需要用温柔的话语和真诚的道歉来哄她开心，提升她对你的好感度。</div>
+                </div>
+                <div class="role-section">
+                    <div class="section-label">🎯 挑战目标</div>
+                    <div class="section-content">在有限的对话轮次内，将好感值提升至100点，让她原谅你并重新展露笑容。</div>
+                </div>
+            </div>
+            
+            <!-- 开场白 -->
+            <div class="opening-message">
+                <div class="opening-label">💬 开场白</div>
+                <div class="opening-text">哼！我不想跟你说话了，你自己想想你做了什么错事！</div>
+            </div>
+        </div>
+        
+        <!-- 主内容区域（可滚动） -->
+        <div class="main-content" id="mainContent">
+            <!-- 聊天区域 -->
+            <div class="chat-area" id="chatArea">
+                <!-- AI开场白消息 -->
+                <div class="chat-message">
+                    <div class="chat-avatar">👩</div>
+                    <div class="chat-content">
+                        <div class="chat-bubble">哼！我不想跟你说话了，你自己想想你做了什么错事！</div>
+                        <div class="chat-time">09:41</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部输入栏 -->
+        <div class="bottom-bar">
+            <input type="text" class="input-box" id="messageInput" placeholder="说点什么哄她开心...">
+            <button class="send-btn" id="sendBtn">➤</button>
+        </div>
+        
+        <!-- 弹窗遮罩 -->
+        <div class="modal-overlay" id="modalOverlay"></div>
+        
+        <!-- 角色说明弹窗 -->
+        <div class="role-modal" id="roleModal">
+            <div class="modal-header">
+                <span class="modal-title">挑战详情</span>
+                <div class="modal-close" id="roleModalClose">✕</div>
+            </div>
+            <div class="modal-section">
+                <div class="modal-section-title">📋 角色说明</div>
+                <div class="modal-section-content">
+                    她是一个傲娇的女朋友，现在正处于生气的状态。你需要用温柔的话语和真诚的道歉来哄她开心，提升她对你的好感度。<br><br>
+                    性格特点：外表冷淡但内心柔软，喜欢听甜言蜜语，对真诚的态度没有抵抗力。
+                </div>
+            </div>
+            <div class="modal-section">
+                <div class="modal-section-title">🎯 挑战目标</div>
+                <div class="modal-section-content">
+                    在有限的对话轮次内，将好感值提升至100点，让她原谅你并重新展露笑容。<br><br>
+                    当前进度：<span id="modalCurrentValue">30</span> / 100<br>
+                    剩余轮次：<span id="modalRoundNum">5</span> 轮
+                </div>
+            </div>
+            <div class="modal-section">
+                <div class="modal-section-title">⚠️ 注意事项</div>
+                <div class="modal-section-content">
+                    1. 每次对话消耗1轮挑战次数<br>
+                    2. AI回复会根据你的回答改变好感值<br>
+                    3. 轮次用完前未达到目标视为挑战失败
+                </div>
+            </div>
+        </div>
+        
+        <!-- 挑战失败弹窗 -->
+        <div class="fail-modal" id="failModal">
+            <div class="fail-icon">😢</div>
+            <div class="fail-title">挑战失败</div>
+            <div class="fail-desc">很可惜，你在规定轮次内没有将好感值提升到100点。她还是很生气...</div>
+            <button class="fail-btn" id="failRetryBtn">再次挑战</button>
+        </div>
+    </div>
+    
+    <script>
+        // 游戏状态
+        let gameState = {
+            currentValue: 30,      // 当前好感值
+            targetValue: 100,      // 目标值
+            totalRounds: 5,        // 总轮次
+            remainingRounds: 5,    // 剩余轮次
+            isChallengeEnd: false  // 挑战是否结束
+        };
+        
+        // DOM元素
+        const progressBar = document.getElementById('progressBar');
+        const progressBarInner = document.getElementById('progressBarInner');
+        const roundNum = document.getElementById('roundNum');
+        const currentValue = document.getElementById('currentValue');
+        const targetValue = document.getElementById('targetValue');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const roleModal = document.getElementById('roleModal');
+        const roleModalClose = document.getElementById('roleModalClose');
+        const failModal = document.getElementById('failModal');
+        const failRetryBtn = document.getElementById('failRetryBtn');
+        const mainContent = document.getElementById('mainContent');
+        const chatArea = document.getElementById('chatArea');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const modalCurrentValue = document.getElementById('modalCurrentValue');
+        const modalRoundNum = document.getElementById('modalRoundNum');
+        
+        // 更新UI
+        function updateUI() {
+            const progressPercent = (gameState.currentValue / gameState.targetValue) * 100;
+            progressBarInner.style.width = progressPercent + '%';
+            roundNum.textContent = gameState.remainingRounds;
+            currentValue.textContent = gameState.currentValue;
+            targetValue.textContent = gameState.targetValue;
+            modalCurrentValue.textContent = gameState.currentValue;
+            modalRoundNum.textContent = gameState.remainingRounds;
+        }
+        
+        // 打开角色说明弹窗
+        function openRoleModal() {
+            modalOverlay.classList.add('show');
+            roleModal.classList.add('show');
+        }
+        
+        // 关闭角色说明弹窗
+        function closeRoleModal() {
+            modalOverlay.classList.remove('show');
+            roleModal.classList.remove('show');
+        }
+        
+        // 打开失败弹窗
+        function openFailModal() {
+            modalOverlay.classList.add('show');
+            failModal.classList.add('show');
+        }
+        
+        // 关闭失败弹窗
+        function closeFailModal() {
+            modalOverlay.classList.remove('show');
+            failModal.classList.remove('show');
+        }
+        
+        // 添加用户消息
+        function addUserMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message user-message';
+            messageDiv.innerHTML = `
+                <div class="chat-avatar" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">👤</div>
+                <div class="chat-content">
+                    <div class="chat-bubble">${escapeHtml(text)}</div>
+                    <div class="chat-time">${getCurrentTime()}</div>
+                </div>
+            `;
+            chatArea.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        // 添加AI消息
+        function addAIMessage(text, valueChange) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message';
+            messageDiv.innerHTML = `
+                <div class="chat-avatar">👩</div>
+                <div class="chat-content">
+                    <div class="chat-bubble">${escapeHtml(text)}</div>
+                    <div class="chat-time">${getCurrentTime()}</div>
+                </div>
+            `;
+            chatArea.appendChild(messageDiv);
+            
+            // 添加数值变化消息
+            if (valueChange !== undefined) {
+                const changeDiv = document.createElement('div');
+                changeDiv.className = 'value-change-msg';
+                const changeClass = valueChange > 0 ? 'value-positive' : (valueChange < 0 ? 'value-negative' : '');
+                const changeSymbol = valueChange > 0 ? '+' : '';
+                changeDiv.innerHTML = `
+                    <span class="value-change-box ${changeClass}">好感值 ${changeSymbol}${valueChange}</span>
+                    <span class="round-remain-box">剩余 ${gameState.remainingRounds} 轮</span>
+                `;
+                chatArea.appendChild(changeDiv);
+            }
+            
+            scrollToBottom();
+        }
+        
+        // 添加系统消息
+        function addSystemMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'system-message';
+            messageDiv.innerHTML = `<span class="system-text">${text}</span>`;
+            chatArea.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        // 添加挑战成功结果
+        function addSuccessResult() {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'challenge-result success';
+            resultDiv.innerHTML = `
+                <div class="result-icon">🎉</div>
+                <div class="result-title">挑战成功！</div>
+                <div class="result-desc">恭喜你成功哄好了她！<br>好感值达到 ${gameState.currentValue} / ${gameState.targetValue}</div>
+                <button class="retry-btn" onclick="resetChallenge()">再次挑战</button>
+            `;
+            chatArea.appendChild(resultDiv);
+            scrollToBottom();
+        }
+        
+        // 添加挑战失败结果（消息形式）
+        function addFailResult() {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'challenge-result fail';
+            resultDiv.innerHTML = `
+                <div class="result-icon">😢</div>
+                <div class="result-title">挑战失败</div>
+                <div class="result-desc">很可惜，你没有在轮次用完前达到目标<br>好感值 ${gameState.currentValue} / ${gameState.targetValue}</div>
+                <button class="retry-btn" onclick="resetChallenge()">再次挑战</button>
+            `;
+            chatArea.appendChild(resultDiv);
+            scrollToBottom();
+        }
+        
+        // 滚动到底部
+        function scrollToBottom() {
+            mainContent.scrollTop = mainContent.scrollHeight;
+        }
+        
+        // 获取当前时间
+        function getCurrentTime() {
+            const now = new Date();
+            return now.getHours().toString().padStart(2, '0') + ':' + 
+                   now.getMinutes().toString().padStart(2, '0');
+        }
+        
+        // HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 模拟AI回复（实际应由AIGC返回）
+        function getAIResponse(userMessage) {
+            const responses = [
+                { text: '哼，算你还有点诚意...（态度稍微缓和了一点）', valueChange: 10 },
+                { text: '你这样说我会以为你在敷衍我！', valueChange: -5 },
+                { text: '真的吗？那你以后还会不会这样了？', valueChange: 15 },
+                { text: '...（沉默了一会儿）其实我也不是真的想生气。', valueChange: 20 },
+                { text: '你每次都这样说，我都听腻了！', valueChange: -10 },
+                { text: '好吧，看在你这么有诚意的份上...', valueChange: 25 },
+                { text: '那你要答应我，以后不许再犯了！', valueChange: 15 },
+                { text: '（扭过头去）我才没有原谅你呢！', valueChange: 5 }
+            ];
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+        
+        // 发送消息
+        function sendMessage() {
+            if (gameState.isChallengeEnd) {
+                alert('挑战已结束，请点击"再次挑战"重新开始');
+                return;
+            }
+            
+            const text = messageInput.value.trim();
+            if (!text) return;
+            
+            // 添加用户消息
+            addUserMessage(text);
+            messageInput.value = '';
+            
+            // 消耗轮次
+            gameState.remainingRounds--;
+            
+            // 模拟AI回复
+            setTimeout(() => {
+                const response = getAIResponse(text);
+                gameState.currentValue = Math.max(0, Math.min(gameState.targetValue, gameState.currentValue + response.valueChange));
+                
+                addAIMessage(response.text, response.valueChange);
+                updateUI();
+                
+                // 检查挑战结果
+                checkChallengeResult();
+            }, 800);
+        }
+        
+        // 检查挑战结果
+        function checkChallengeResult() {
+            // 检查是否成功
+            if (gameState.currentValue >= gameState.targetValue) {
+                gameState.isChallengeEnd = true;
+                setTimeout(() => {
+                    addSuccessResult();
+                }, 500);
+                return;
+            }
+            
+            // 检查是否失败（轮次用完）
+            if (gameState.remainingRounds <= 0) {
+                gameState.isChallengeEnd = true;
+                setTimeout(() => {
+                    openFailModal();
+                    addFailResult();
+                }, 500);
+            }
+        }
+        
+        // 重置挑战
+        function resetChallenge() {
+            gameState = {
+                currentValue: 30,
+                targetValue: 100,
+                totalRounds: 5,
+                remainingRounds: 5,
+                isChallengeEnd: false
+            };
+            
+            // 清空聊天区域，只保留开场白
+            chatArea.innerHTML = `
+                <div class="chat-message">
+                    <div class="chat-avatar">👩</div>
+                    <div class="chat-content">
+                        <div class="chat-bubble">哼！我不想跟你说话了，你自己想想你做了什么错事！</div>
+                        <div class="chat-time">09:41</div>
+                    </div>
+                </div>
+            `;
+            
+            closeFailModal();
+            updateUI();
+        }
+        
+        // 事件监听
+        progressBar.addEventListener('click', openRoleModal);
+        roleModalClose.addEventListener('click', closeRoleModal);
+        modalOverlay.addEventListener('click', () => {
+            closeRoleModal();
+            closeFailModal();
+        });
+        failRetryBtn.addEventListener('click', resetChallenge);
+        
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // 初始化
+        updateUI();
+    </script>
+</body>
+</html>
